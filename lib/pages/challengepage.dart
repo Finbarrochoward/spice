@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/globalthemes.dart';
+import 'dart:math';
 
+// Overall layout of challenge page
 class ChallengePage extends StatefulWidget {
+
+  final String challengeText;
+  ChallengePage(this.challengeText);
+
   @override
   _ChallengePageState createState() => _ChallengePageState();
 }
@@ -11,7 +17,7 @@ class _ChallengePageState extends State<ChallengePage> {
   Widget build(BuildContext context) {
     return Container(
         child: Column(children: <Widget>[
-      ChallengeCard(),
+      ChallengeCard(widget.challengeText),
       Padding(
         padding: EdgeInsets.only(bottom: 70),
       ),
@@ -20,182 +26,146 @@ class _ChallengePageState extends State<ChallengePage> {
   }
 }
 
-class ChallengePageLayout extends StatefulWidget {
-  @override
-  _ChallengePageLayoutState createState() => _ChallengePageLayoutState();
-}
-
-class _ChallengePageLayoutState extends State<ChallengePageLayout> {
-  bool selected = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-        margin: EdgeInsets.only(bottom: 150, left: 10, right: 10, top: 25),
-        duration: Duration(seconds: 2),
-        curve: Curves.fastOutSlowIn,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(39),
-            // color: Colors.red,
-            gradient: LinearGradient(colors: [Colors.red, Colors.orange]),
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0.0, 0.0),
-                  blurRadius: 15.0,
-                  spreadRadius: 8.0)
-            ]),
-        child: Column(
-          children: <Widget>[
-            Padding(padding: EdgeInsets.only(top: 20)),
-            Text("Daily Spice",
-                style: TextStyle(
-                  fontSize: 30,
-                )),
-          ],
-        ));
-  }
-}
-
-// One try at making cards
-
-class ChallengeBoxCard extends StatelessWidget {
-  const ChallengeBoxCard({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Positioned(
-            child: Card(
-                child: AnimatedContainer(
-                    margin: EdgeInsets.only(
-                        bottom: 150, left: 10, right: 10, top: 25),
-                    duration: Duration(seconds: 2),
-                    curve: Curves.fastOutSlowIn,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(39),
-                        gradient:
-                            LinearGradient(colors: [Colors.red, Colors.orange]),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0.0, 0.0),
-                              blurRadius: 15.0,
-                              spreadRadius: 8.0)
-                        ]),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(padding: EdgeInsets.only(top: 20)),
-                        Text("Daily Spice",
-                            style: TextStyle(
-                              fontSize: 30,
-                            )),
-                      ],
-                    ))))
-      ],
-    );
-  }
-}
-
-// Current attempt
+// Challenge Card itself
 
 class ChallengeCard extends StatefulWidget {
+
+  final String challengeText;
+  ChallengeCard(this.challengeText);
+
   @override
   _ChallengeCardState createState() => _ChallengeCardState();
 }
 
 class _ChallengeCardState extends State<ChallengeCard>
-    with TickerProviderStateMixin {
-  AnimationController _buttonController;
-  Animation<double> rotate;
-  Animation<double> right;
-  Animation<double> bottom;
+    with SingleTickerProviderStateMixin {
+
+  double pos;
+  AnimationController _controller;
+  final Alignment defaultFrontCardAlign = Alignment(0.0, 0.0);
+  Alignment frontCardAlign = Alignment(0.0, 0.0);
+  double frontCardRot = 0.0;
+
+  Widget challengeCard(challengeText) {
+    return Container(
+      margin: EdgeInsets.only(top: 20.0),
+      width: MediaQuery.of(context).size.width / 1.1,
+      height: MediaQuery.of(context).size.height / 1.7,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(39),
+          color: Colors.green,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0.0, 0.0),
+                blurRadius: 15.0,
+                spreadRadius: 8.0)
+          ]),
+      child: Column(children: <Widget>[
+        Container(
+            width: MediaQuery.of(context).size.width / 1.1,
+            height: MediaQuery.of(context).size.height / 14,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(39),
+                    topRight: Radius.circular(39)),
+                color: Colors.green),
+            child: Text("Daily Spice", style: TextStyle(fontSize: 30))),
+        Container(
+            width: MediaQuery.of(context).size.width / 1.1,
+            height: MediaQuery.of(context).size.height / 1.7 -
+                MediaQuery.of(context).size.height / 14,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(39),
+              gradient: LinearGradient(colors: [Colors.red, Colors.orange]),
+            ),
+            child: Column(children: <Widget>[
+              Container(
+                  margin: EdgeInsets.only(top: 20),
+                  child: Text("Challenge", style: TextStyle(fontSize: 20))),
+              Container(
+                margin: EdgeInsets.only(top: 20, left: 10, right: 10),
+                child: Text(
+                    challengeText,
+                    style: TextStyle(fontSize: 20)),
+              )
+            ]))
+      ]),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    _buttonController = AnimationController(
-        duration: Duration(milliseconds: 1000), vsync: this);
 
-    // Rotate
-    rotate = Tween<double>(begin: -0.0, end: -40.0).animate(
-        CurvedAnimation(parent: _buttonController, curve: Curves.ease));
-    rotate.addListener(() {});
+    // Init animation controller
+    _controller =
+        AnimationController(duration: Duration(milliseconds: 700), vsync: this);
+    _controller.addListener(() => setState(() {}));
+    _controller.addStatusListener((status) {
+      // Implement reload of new challenge
+    });
+  }
 
-    // Right
-    right = Tween<double>(begin: 0.0, end: 400.0).animate(
-        CurvedAnimation(parent: _buttonController, curve: Curves.ease));
+  Widget challengeCardWidget(challengeText) {
+    return Align(
+      alignment: _controller.status == AnimationStatus.forward
+          ? CardsAnimation.frontCardDisappearAlignmentAnim(
+                  _controller, frontCardAlign)
+              .value
+          : frontCardAlign,
+      child: Transform.rotate(
+          angle: (pi / 180.0) * frontCardRot, child: challengeCard(challengeText)),
+    );
+  }
 
-    // Bottom
-    bottom = Tween<double>(begin: 15.0, end: 100.0).animate(
-        CurvedAnimation(parent: _buttonController, curve: Curves.ease));
-
-    Future<Null> _swipeAnimation() async {
-      try {
-        await _buttonController.forward();
-      } on TickerCanceled {}
-    }
+  void animateCards() {
+    _controller.stop();
+    _controller.value = 0.0;
+    _controller.forward();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.transparent,
-      elevation: 0.0,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Container(
-          margin: EdgeInsets.only(top: 20.0),
-          width: MediaQuery.of(context).size.width / 1.1,
-          height: MediaQuery.of(context).size.height / 1.7,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(39),
-              color: Colors.green,
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(0.0, 0.0),
-                    blurRadius: 15.0,
-                    spreadRadius: 8.0)
-              ]),
-          child: Column(children: <Widget>[
-            Container(
-                width: MediaQuery.of(context).size.width / 1.1,
-                height: MediaQuery.of(context).size.height / 14,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(39),
-                        topRight: Radius.circular(39)),
-                    color: Colors.green),
-                child: Text("Daily Spice", style: TextStyle(fontSize: 30))),
-            Container(
-                width: MediaQuery.of(context).size.width / 1.1,
-                height: MediaQuery.of(context).size.height / 1.7 -
-                    MediaQuery.of(context).size.height / 14,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(39),
-                  gradient: LinearGradient(colors: [Colors.red, Colors.orange]),
-                ),
-                child: Column(children: <Widget>[
-                  Container(
-                      margin: EdgeInsets.only(top: 20),
-                      child: Text("Challenge", style: TextStyle(fontSize: 20))),
-                  Container(
-                    margin: EdgeInsets.only(top: 20, left: 10, right: 10),
-                    child: Text(
-                        "Take a photo with you holding a spoon on your nose while reading todays newspaper",
-                        style: TextStyle(fontSize: 20)),
-                  )
-                ]))
-          ]),
-        ),
+    String challenge = widget.challengeText;
+
+    return GestureDetector(
+      onPanUpdate: (position) {
+        setState(() {
+          frontCardAlign = Alignment(
+              frontCardAlign.x +
+                  20 * position.delta.dx / MediaQuery.of(context).size.width,
+              frontCardAlign.y +
+                  40 * position.delta.dy / MediaQuery.of(context).size.height);
+
+          frontCardRot = frontCardAlign.x;
+        });
+        pos = position.delta.dx;
+        print(pos);
+      },
+      onPanEnd: (_) {
+        // If the front card was swiped far enough to count as swiped
+        if (frontCardAlign.x > 3.0 || frontCardAlign.x < -3.0) {
+          animateCards();
+        } else {
+          // Return to the initial rotation and alignment
+          setState(() {
+            frontCardAlign = defaultFrontCardAlign;
+            frontCardRot = 0.0;
+          });
+        }
+      },
+      child: Card(
+        color: Colors.transparent,
+        elevation: 0.0,
+        child: challengeCardWidget(challenge),
       ),
     );
   }
 }
+
+// Class that combines buttons into layout
 
 class ChallengeButtonsLayout extends StatelessWidget {
   @override
@@ -212,6 +182,8 @@ class ChallengeButtonsLayout extends StatelessWidget {
         ));
   }
 }
+
+// Individual challenge buttons
 
 class ChallengeButton extends StatelessWidget {
   @override
@@ -233,3 +205,23 @@ class ChallengeButton extends StatelessWidget {
     );
   }
 }
+
+class CardsAnimation {
+  static Animation<Alignment> frontCardDisappearAlignmentAnim(
+      AnimationController parent, Alignment beginAlign) {
+    return AlignmentTween(
+            begin: beginAlign,
+            end: Alignment(
+                beginAlign.x > 0 ? beginAlign.x + 30.0 : beginAlign.x - 30.0,
+                0.0) // Has swiped to the left or right?
+            )
+        .animate(CurvedAnimation(
+            parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
+  }
+}
+
+// Prevent swiping if the cards are animating
+// _controller.status != AnimationStatus.forward
+//     ? SizedBox.expand(
+//         child: GestureDetector(
+  

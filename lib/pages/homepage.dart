@@ -45,7 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
         body: PageView(
           children: <Widget>[
             MainPageLayout(),
-            ChallengePage(),
+            ChallengePage("Poopoo"),
+            // CardsSectionAlignment(context)  
           ],
           scrollDirection: Axis.vertical,
         ));
