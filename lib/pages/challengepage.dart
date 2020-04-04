@@ -4,7 +4,6 @@ import 'dart:math';
 
 // Overall layout of challenge page
 class ChallengePage extends StatefulWidget {
-
   final String challengeText;
   ChallengePage(this.challengeText);
 
@@ -29,7 +28,6 @@ class _ChallengePageState extends State<ChallengePage> {
 // Challenge Card itself
 
 class ChallengeCard extends StatefulWidget {
-
   final String challengeText;
   ChallengeCard(this.challengeText);
 
@@ -39,7 +37,6 @@ class ChallengeCard extends StatefulWidget {
 
 class _ChallengeCardState extends State<ChallengeCard>
     with SingleTickerProviderStateMixin {
-
   double pos;
   AnimationController _controller;
   final Alignment defaultFrontCardAlign = Alignment(0.0, 0.0);
@@ -86,9 +83,7 @@ class _ChallengeCardState extends State<ChallengeCard>
                   child: Text("Challenge", style: TextStyle(fontSize: 20))),
               Container(
                 margin: EdgeInsets.only(top: 20, left: 10, right: 10),
-                child: Text(
-                    challengeText,
-                    style: TextStyle(fontSize: 20)),
+                child: Text(challengeText, style: TextStyle(fontSize: 20)),
               )
             ]))
       ]),
@@ -116,11 +111,12 @@ class _ChallengeCardState extends State<ChallengeCard>
               .value
           : frontCardAlign,
       child: Transform.rotate(
-          angle: (pi / 180.0) * frontCardRot, child: challengeCard(challengeText)),
+          angle: (pi / 180.0) * frontCardRot,
+          child: challengeCard(challengeText)),
     );
   }
 
-  void animateCards() {
+  void reloadCard(newChallenge) {
     _controller.stop();
     _controller.value = 0.0;
     _controller.forward();
@@ -141,13 +137,18 @@ class _ChallengeCardState extends State<ChallengeCard>
 
           frontCardRot = frontCardAlign.x;
         });
-        pos = position.delta.dx;
-        print(pos);
+        // pos = position.delta.dx;
+        // print(pos);
       },
       onPanEnd: (_) {
         // If the front card was swiped far enough to count as swiped
-        if (frontCardAlign.x > 3.0 || frontCardAlign.x < -3.0) {
-          animateCards();
+        if (frontCardAlign.x > 3.0) {
+          print("right");
+        } else if (frontCardAlign.x < -3.0) {
+          print("left");
+          reloadCard("cash");
+          frontCardAlign = defaultFrontCardAlign;
+          frontCardRot = 0.0;
         } else {
           // Return to the initial rotation and alignment
           setState(() {
@@ -165,29 +166,10 @@ class _ChallengeCardState extends State<ChallengeCard>
   }
 }
 
-// Class that combines buttons into layout
+// Buttons and layout of buttons
 
 class ChallengeButtonsLayout extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ChallengeButton(),
-            Padding(padding: EdgeInsets.only(left: 40.0, right: 40.0)),
-            ChallengeButton()
-          ],
-        ));
-  }
-}
-
-// Individual challenge buttons
-
-class ChallengeButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
+  Widget cameraButton() {
     return Container(
       width: 100.0,
       height: 100.0,
@@ -201,8 +183,39 @@ class ChallengeButton extends StatelessWidget {
                 blurRadius: 15.0,
                 spreadRadius: 8.0)
           ]),
-      child: IconButton(onPressed: () {}, icon: Icon(Icons.attach_money)),
+      child: IconButton(onPressed: () {}, icon: Icon(Icons.camera)),
     );
+  }
+
+  Widget skipButton() {
+    return Container(
+        width: 100.0,
+        height: 100.0,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey,
+                  offset: Offset(0.0, 0.0),
+                  blurRadius: 15.0,
+                  spreadRadius: 8.0)
+            ]),
+        child: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            skipButton(),
+            Padding(padding: EdgeInsets.only(left: 40.0, right: 40.0)),
+            cameraButton()
+          ],
+        ));
   }
 }
 
@@ -224,4 +237,3 @@ class CardsAnimation {
 // _controller.status != AnimationStatus.forward
 //     ? SizedBox.expand(
 //         child: GestureDetector(
-  
