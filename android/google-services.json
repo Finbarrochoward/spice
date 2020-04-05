@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1051850407040",
+    "firebase_url": "https://spice-a4ec0.firebaseio.com",
+    "project_id": "spice-a4ec0",
+    "storage_bucket": "spice-a4ec0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051850407040:android:6b17a2be462044e770fa65",
+        "android_client_info": {
+          "package_name": "com.fhdev.spice"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051850407040-lqu1oat6dppcctlb9mqf5jh9l0llc2q8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnETGD8jl-iV8MMKMnmVrZClpZYwNnSFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051850407040-lqu1oat6dppcctlb9mqf5jh9l0llc2q8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051850407040-h9earussut0cp7rvfah1appqd074mfcg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.fhdev.spice"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../models/globalthemes.dart';
 import 'dart:math';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 // Overall layout of challenge page
 class ChallengePage extends StatefulWidget {
@@ -20,7 +25,7 @@ class _ChallengePageState extends State<ChallengePage> {
       Padding(
         padding: EdgeInsets.only(bottom: 70),
       ),
-      ChallengeButtonsLayout()
+      ImageCapture()
     ]));
   }
 }
@@ -168,7 +173,103 @@ class _ChallengeCardState extends State<ChallengeCard>
 
 // Buttons and layout of buttons
 
-class ChallengeButtonsLayout extends StatelessWidget {
+// class ChallengeButtonsLayout extends StatelessWidget {
+
+// Widget cameraButton() {
+//   return Container(
+//     width: 100.0,
+//     height: 100.0,
+//     decoration: BoxDecoration(
+//         color: Colors.white,
+//         shape: BoxShape.circle,
+//         boxShadow: [
+//           BoxShadow(
+//               color: Colors.grey,
+//               offset: Offset(0.0, 0.0),
+//               blurRadius: 15.0,
+//               spreadRadius: 8.0)
+//         ]),
+//     child: IconButton(onPressed: () {
+//       pickImage(ImageSource.camera);
+//     }, icon: Icon(Icons.camera)),
+//   );
+// }
+
+// Widget skipButton() {
+//   return Container(
+//       width: 100.0,
+//       height: 100.0,
+//       decoration: BoxDecoration(
+//           color: Colors.white,
+//           shape: BoxShape.circle,
+//           boxShadow: [
+//             BoxShadow(
+//                 color: Colors.grey,
+//                 offset: Offset(0.0, 0.0),
+//                 blurRadius: 15.0,
+//                 spreadRadius: 8.0)
+//           ]),
+//       child: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)));
+// }
+
+// @override
+// Widget build(BuildContext context) {
+//   return Container(
+//       alignment: Alignment.center,
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: <Widget>[
+//           skipButton(),
+//           Padding(padding: EdgeInsets.only(left: 40.0, right: 40.0)),
+//           cameraButton()
+//         ],
+//       ));
+// }
+// }
+
+class CardsAnimation {
+  static Animation<Alignment> frontCardDisappearAlignmentAnim(
+      AnimationController parent, Alignment beginAlign) {
+    return AlignmentTween(
+            begin: beginAlign,
+            end: Alignment(
+                beginAlign.x > 0 ? beginAlign.x + 30.0 : beginAlign.x - 30.0,
+                0.0) // Has swiped to the left or right?
+            )
+        .animate(CurvedAnimation(
+            parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
+  }
+}
+
+// Prevent swiping if the cards are animating
+// _controller.status != AnimationStatus.forward
+//     ? SizedBox.expand(
+//         child: GestureDetector(
+
+class ImageCapture extends StatefulWidget {
+  @override
+  _ImageCaptureState createState() => _ImageCaptureState();
+}
+
+class _ImageCaptureState extends State<ImageCapture> {
+  File _imageFile;
+
+  Future<void> _pickImage(ImageSource source) async {
+    File selected = await ImagePicker.pickImage(source: source);
+
+    setState(() {
+      _imageFile = selected;
+    });
+  }
+
+  // Future<void> _cropImage() async {
+  //   File cropped = await ImageCropper.cropImage(sourcePath: _imageFile.path);
+
+  //   setState(() {
+  //     _imageFile = cropped ?? _imageFile;
+  //   });
+  // }
+
   Widget cameraButton() {
     return Container(
       width: 100.0,
@@ -183,7 +284,9 @@ class ChallengeButtonsLayout extends StatelessWidget {
                 blurRadius: 15.0,
                 spreadRadius: 8.0)
           ]),
-      child: IconButton(onPressed: () {}, icon: Icon(Icons.camera)),
+      child: IconButton(
+          onPressed: () => _pickImage(ImageSource.camera),
+          icon: Icon(Icons.camera)),
     );
   }
 
@@ -218,22 +321,3 @@ class ChallengeButtonsLayout extends StatelessWidget {
         ));
   }
 }
-
-class CardsAnimation {
-  static Animation<Alignment> frontCardDisappearAlignmentAnim(
-      AnimationController parent, Alignment beginAlign) {
-    return AlignmentTween(
-            begin: beginAlign,
-            end: Alignment(
-                beginAlign.x > 0 ? beginAlign.x + 30.0 : beginAlign.x - 30.0,
-                0.0) // Has swiped to the left or right?
-            )
-        .animate(CurvedAnimation(
-            parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
-  }
-}
-
-// Prevent swiping if the cards are animating
-// _controller.status != AnimationStatus.forward
-//     ? SizedBox.expand(
-//         child: GestureDetector(
