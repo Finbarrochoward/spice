@@ -42,11 +42,42 @@ class ChallengeCard extends StatefulWidget {
 
 class _ChallengeCardState extends State<ChallengeCard>
     with SingleTickerProviderStateMixin {
+  // Variables
   double pos;
   AnimationController _controller;
   final Alignment defaultFrontCardAlign = Alignment(0.0, 0.0);
   Alignment frontCardAlign = Alignment(0.0, 0.0);
   double frontCardRot = 0.0;
+  File _imageFile;
+
+  // Methods
+
+  Future<void> _pickImage(ImageSource source) async {
+    File selected = await ImagePicker.pickImage(source: source);
+
+    setState(() {
+      _imageFile = selected;
+    });
+  }
+
+  Future<void> _cropImage() async {
+    File cropped = await ImageCropper.cropImage(
+        sourcePath: _imageFile.path,
+        androidUiSettings: AndroidUiSettings(
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            toolbarTitle: "Crop it"));
+
+    setState(() {
+      _imageFile = cropped ?? _imageFile;
+    });
+  }
+
+  void _clear() {
+    setState(() => _imageFile = null);
+  }
+
+  // Widgets
 
   Widget challengeCard(challengeText) {
     return Container(
@@ -149,6 +180,7 @@ class _ChallengeCardState extends State<ChallengeCard>
         // If the front card was swiped far enough to count as swiped
         if (frontCardAlign.x > 3.0) {
           print("right");
+          _pickImage(ImageSource.gallery);
         } else if (frontCardAlign.x < -3.0) {
           print("left");
           reloadCard("cash");
@@ -171,62 +203,6 @@ class _ChallengeCardState extends State<ChallengeCard>
   }
 }
 
-// Buttons and layout of buttons
-
-// class ChallengeButtonsLayout extends StatelessWidget {
-
-// Widget cameraButton() {
-//   return Container(
-//     width: 100.0,
-//     height: 100.0,
-//     decoration: BoxDecoration(
-//         color: Colors.white,
-//         shape: BoxShape.circle,
-//         boxShadow: [
-//           BoxShadow(
-//               color: Colors.grey,
-//               offset: Offset(0.0, 0.0),
-//               blurRadius: 15.0,
-//               spreadRadius: 8.0)
-//         ]),
-//     child: IconButton(onPressed: () {
-//       pickImage(ImageSource.camera);
-//     }, icon: Icon(Icons.camera)),
-//   );
-// }
-
-// Widget skipButton() {
-//   return Container(
-//       width: 100.0,
-//       height: 100.0,
-//       decoration: BoxDecoration(
-//           color: Colors.white,
-//           shape: BoxShape.circle,
-//           boxShadow: [
-//             BoxShadow(
-//                 color: Colors.grey,
-//                 offset: Offset(0.0, 0.0),
-//                 blurRadius: 15.0,
-//                 spreadRadius: 8.0)
-//           ]),
-//       child: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)));
-// }
-
-// @override
-// Widget build(BuildContext context) {
-//   return Container(
-//       alignment: Alignment.center,
-//       child: Row(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: <Widget>[
-//           skipButton(),
-//           Padding(padding: EdgeInsets.only(left: 40.0, right: 40.0)),
-//           cameraButton()
-//         ],
-//       ));
-// }
-// }
-
 class CardsAnimation {
   static Animation<Alignment> frontCardDisappearAlignmentAnim(
       AnimationController parent, Alignment beginAlign) {
@@ -240,11 +216,6 @@ class CardsAnimation {
             parent: parent, curve: Interval(0.0, 0.5, curve: Curves.easeIn)));
   }
 }
-
-// Prevent swiping if the cards are animating
-// _controller.status != AnimationStatus.forward
-//     ? SizedBox.expand(
-//         child: GestureDetector(
 
 class ImageCapture extends StatefulWidget {
   @override
@@ -262,13 +233,22 @@ class _ImageCaptureState extends State<ImageCapture> {
     });
   }
 
-  // Future<void> _cropImage() async {
-  //   File cropped = await ImageCropper.cropImage(sourcePath: _imageFile.path);
+  Future<void> _cropImage() async {
+    File cropped = await ImageCropper.cropImage(
+        sourcePath: _imageFile.path,
+        androidUiSettings: AndroidUiSettings(
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            toolbarTitle: "Crop it"));
 
-  //   setState(() {
-  //     _imageFile = cropped ?? _imageFile;
-  //   });
-  // }
+    setState(() {
+      _imageFile = cropped ?? _imageFile;
+    });
+  }
+
+  void _clear() {
+    setState(() => _imageFile = null);
+  }
 
   Widget cameraButton() {
     return Container(
@@ -285,7 +265,7 @@ class _ImageCaptureState extends State<ImageCapture> {
                 spreadRadius: 8.0)
           ]),
       child: IconButton(
-          onPressed: () => _pickImage(ImageSource.camera),
+          onPressed: () => _pickImage(ImageSource.gallery),
           icon: Icon(Icons.camera)),
     );
   }
@@ -316,7 +296,7 @@ class _ImageCaptureState extends State<ImageCapture> {
           children: <Widget>[
             skipButton(),
             Padding(padding: EdgeInsets.only(left: 40.0, right: 40.0)),
-            cameraButton()
+            cameraButton(),
           ],
         ));
   }
